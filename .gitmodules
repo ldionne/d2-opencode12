@@ -1,0 +1,3 @@
+[submodule "ext/d2"]
+	path = ext/d2
+	url = http://github.com/ldionne/d2
