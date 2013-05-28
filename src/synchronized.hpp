@@ -1,4 +1,5 @@
 
+#include <d2/lockable.hpp>
 #include <mutex>
 #include <utility>
 
@@ -7,7 +8,7 @@
 template <typename Integer>
 class synchronized {
     typedef Integer value_type;
-    typedef std::mutex mutex_type;
+    typedef d2::lockable<std::mutex> mutex_type;
     typedef std::lock_guard<mutex_type> scoped_lock;
 
     mutex_type mutable mutex_;
