@@ -83,7 +83,7 @@ add_definitions(
 
 
 #=============================================================================
-# Setup the code
+# Setup the demo code
 #=============================================================================
 find_package(Boost 1.53 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -92,6 +92,6 @@ add_subdirectory(ext/d2)
 include_directories(ext/d2/include)
 include_directories(ext/d2/ext/dyno/include)
 
-file(GLOB_RECURSE SOURCES src/*.cpp)
-add_executable(main ${SOURCES})
+file(GLOB_RECURSE DEMO_SOURCES demo/*.cpp)
+add_executable(main ${DEMO_SOURCES})
 target_link_libraries(main d2)
