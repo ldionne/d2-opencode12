@@ -98,7 +98,6 @@
 
 <ol>
 <li>The problem: lock order inconsistencies</li>
-<li>Existing solutions</li>
 <li><code>d2</code>: a library-based approach</li>
 <li>Demo</li>
 <li>Roadmap</li>
@@ -143,13 +142,8 @@ thread t3([&amp;] {
 </div><div class="slide" data-transition="none"><div class="content" ref="1_lock_order_inconsistencies/4">
 <h1>Same principle but harder to catch</h1>
 </div>
-</div><div class="slide" data-transition="none"><div class="content" ref="1_lock_order_inconsistencies/5">
-<p class="notes">Very few variations in thread scheduling usually happens for different
-runs of the same code in the same conditions. For this reason, odds are that
-rare deadlocks still make it to production and only happen under "extreme"
-conditions.</p>
-
-<h2>Why are they so vicious?</h2>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="1_lock_order_inconsistencies/5">
+<h1>Why are they so vicious?</h1>
 
 <ul>
 <li>Non deterministic</li>
@@ -157,65 +151,23 @@ conditions.</p>
 <li>Difficult to reproduce</li>
 </ul>
 </div>
-</div><div class="slide" data-transition="none"><div class="content" ref="1_lock_order_inconsistencies/6">
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="1_lock_order_inconsistencies/6">
+<h1>Possible solutions</h1>
+
+<ul>
+<li>Never hold more than one lock at once</li>
+<li>Determine a hierarchy among locks and respect it</li>
+<li>Disturb thread scheduling to provoke hidden deadlocks</li>
+<li>Use an algorithm to break deadlocks when they happen</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="1_lock_order_inconsistencies/7">
 <h2>We would like to detect them automatically and before they happen</h2>
 </div>
-</div><div class="slide" data-transition="none"><div class="content subsection" ref="2_existing_solutions/1">
-<h1>Existing solutions</h1>
-</div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/2">
-<h2>Never hold more than one lock at once</h2>
-
-<ul>
-<li>Not realistic for non-trivial programs</li>
-</ul>
-</div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/3">
-<h2>Determine a hierarchy among locks and respect it</h2>
-
-<ul>
-<li>Hard to enforce for non-trivial programs</li>
-</ul>
-</div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/4">
-<h2>Disturb thread scheduling to provoke hidden deadlocks</h2>
-
-<ul>
-<li>Requires several runs of the program</li>
-<li>Good idea that could be mixed with other approaches</li>
-</ul>
-</div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/5">
-<h2>Use an algorithm to break deadlocks when they happen</h2>
-
-<ul>
-<li>Overhead required to check for deadlock conditions</li>
-<li>Policy for breaking deadlocks can't be pretty: kill the thread</li>
-<li>Misses the point: deadlocks are a bug, not a runtime mishap</li>
-</ul>
-</div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/6">
-<h2>Intel&#xAE; Inspector XE</h2>
-
-<ul>
-<li>Detects deadlocks involving up to 4 threads only</li>
-<li>Huge overhead</li>
-<li>Proprietary and costly license</li>
-<li>Plenty of false positives</li>
-</ul>
-</div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/7">
-<h2>Valgrind (Helgrind)</h2>
-
-<ul>
-<li>Runs the program on a virtual processor, one thread at a time</li>
-<li>Limited to POSIX pthreads threading primitives</li>
-</ul>
-</div>
-</div><div class="slide" data-transition="none"><div class="content subsection" ref="3_d2/1">
+</div><div class="slide" data-transition="none"><div class="content subsection" ref="2_d2/1">
 <h1><code>d2</code>: a library-based approach</h1>
 </div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="3_d2/2">
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_d2/2">
 <h1>Goals</h1>
 
 <ul>
@@ -225,7 +177,7 @@ conditions.</p>
 <li>Very few false positives</li>
 </ul>
 </div>
-</div><div class="slide" data-transition="none"><div class="content" ref="3_d2/3">
+</div><div class="slide" data-transition="none"><div class="content" ref="2_d2/3">
 <h1>How to use it?</h1>
 
 <ol>
@@ -234,17 +186,17 @@ conditions.</p>
 <li>Analyze the program trace and find potential deadlocks</li>
 </ol>
 </div>
-</div><div class="slide" data-transition="none"><div class="content" ref="3_d2/4">
+</div><div class="slide" data-transition="none"><div class="content" ref="2_d2/4">
 <h1>How does it work?</h1>
 </div>
-</div><div id="slide-filesystem" class="slide" data-transition="none"><div class="content" ref="3_d2/5">
+</div><div id="slide-filesystem" class="slide" data-transition="none"><div class="content" ref="2_d2/5">
 <h2>When your code runs, events are generated and recorded on disk</h2>
 
 <p><img src="./file//images/example_repository.png" width="770" height="438" alt="Example repository"/>
 </p>
 </div>
 </div><div id="break_mumbo_jumbo" class="slide" data-transition="none">
-  <div class="content commandline" ref="3_d2/6">
+  <div class="content commandline" ref="2_d2/6">
 <h2>Once you get used to it, this compact representation is awesome</h2>
 
 <pre><code><code class="command">$ cat my_program/1    # thread 1</code>
@@ -261,13 +213,13 @@ conditions.</p>
 </br>
 </br>
 </br></br></br></br></p></div>
-</div><div class="slide" data-transition="none"><div class="content" ref="3_d2/7">
+</div><div class="slide" data-transition="none"><div class="content" ref="2_d2/7">
 <h1>JUST KIDDING</h1>
 
 <h3>it's not for humans</h3>
 </div>
 </div><div class="slide" data-transition="none">
-  <div class="content" ref="3_d2/8">
+  <div class="content" ref="2_d2/8">
 <h2>Build a graph of the lock dependencies</h2>
 
 <!-- Sorry guys, I suck at css -->
@@ -280,7 +232,7 @@ conditions.</p>
 </br>
 </br>
 </br></p></div>
-</div><div class="slide" data-transition="none"><div class="content commandline" ref="3_d2/9">
+</div><div class="slide" data-transition="none"><div class="content commandline" ref="2_d2/9">
 <h2>Find cycles, remove false positives and output a diagnostic</h2>
 
 <pre><code><code class="command">$ d2tool --analyze myprogram</code>
@@ -297,10 +249,10 @@ in thread #XX started at [location]:
   tries to acquire object #WW at [location]
 </code></code></pre>
 </div>
-</div><div class="slide" data-transition="none"><div class="content subsection" ref="4_demo">
+</div><div class="slide" data-transition="none"><div class="content subsection" ref="3_demo">
 <h1>Demo</h1>
 </div>
-</div><div class="slide" data-transition="none"><div class="content smbullets subsection" ref="5_roadmap">
+</div><div class="slide" data-transition="none"><div class="content smbullets subsection" ref="4_roadmap">
 <h1>Roadmap</h1>
 
 <ul>
@@ -310,15 +262,15 @@ in thread #XX started at [location]:
 <li>Further reduce false positives</li>
 </ul>
 </div>
-</div><div class="slide" data-transition="none"><div class="content" ref="6_conclusion">
+</div><div class="slide" data-transition="none"><div class="content" ref="5_conclusion">
 <h1>Questions/Comments?</h1>
 
 <h3>github.com/ldionne</h3>
 </div>
-</div><div class="slide" data-transition="none"><div class="content subsection" ref="7_bonus/1">
+</div><div class="slide" data-transition="none"><div class="content subsection" ref="6_bonus/1">
 <h1>Bonus: summary of the algorithm</h1>
 </div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="7_bonus/2">
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="6_bonus/2">
 <h2>The lock graph is a directed multigraph</h2>
 
 <ul>
@@ -327,7 +279,7 @@ in thread #XX started at [location]:
 <li>A cycle in the graph represents a potential deadlock</li>
 </ul>
 </div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="7_bonus/3">
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="6_bonus/3">
 <h2>The segmentation graph is a directed acyclic graph</h2>
 
 <ul>
@@ -335,7 +287,7 @@ in thread #XX started at [location]:
 <li>A path from <code>u</code> to <code>v</code> means that <code>u</code> happens before <code>v</code></li>
 </ul>
 </div>
-</div><div class="slide" data-transition="none"><div class="content smbullets" ref="7_bonus/4">
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="6_bonus/4">
 <h2>We label each edge of the lock graph with</h2>
 
 <ul>
@@ -344,10 +296,10 @@ in thread #XX started at [location]:
 <li>The code segment in which the acquire is performed</li>
 </ul>
 </div>
-</div><div class="slide" data-transition="none"><div class="content" ref="7_bonus/5">
+</div><div class="slide" data-transition="none"><div class="content" ref="6_bonus/5">
 <h2>To reduce false positives, we ignore a cycle if...</h2>
 </div>
-</div><div class="slide" data-transition="none"><div class="content small centered-code" ref="7_bonus/6">
+</div><div class="slide" data-transition="none"><div class="content small centered-code" ref="6_bonus/6">
 <h2>Any two edges are in the same thread</h2>
 
 <pre class="sh_cpp"><code>mutex A, B;
@@ -363,7 +315,7 @@ thread t1([&amp;] {
   B.unlock();
 });</code></pre>
 </div>
-</div><div class="slide" data-transition="none"><div class="content small centered-code" ref="7_bonus/7">
+</div><div class="slide" data-transition="none"><div class="content small centered-code" ref="6_bonus/7">
 <h2>Any two edges share common "gatelocks"</h2>
 
 <pre class="sh_cpp"><code>mutex A, B, G;
@@ -385,7 +337,7 @@ thread t2([&amp;] {
   G.unlock();
 });</code></pre>
 </div>
-</div><div class="slide" data-transition="none"><div class="content small centered-code" ref="7_bonus/8">
+</div><div class="slide" data-transition="none"><div class="content small centered-code" ref="6_bonus/8">
 <h2>Any edge happens before any other edge in the cycle</h2>
 
 <pre class="sh_cpp"><code>mutex A, B;
