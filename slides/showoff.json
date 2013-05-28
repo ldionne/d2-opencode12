@@ -1,0 +1,16 @@
+{
+    "name": "Deadlock detection with d2",
+    "author": "Louis Dionne",
+    "venue": "OpenCode #12",
+    "sections": [
+        {"section": "0_intro.md"},
+        {"section": "1_lock_order_inconsistencies.md"},
+        {"section": "2_existing_solutions.md"},
+        {"section": "3_d2.md"},
+        {"section": "4_demo.md"},
+        {"section": "5_roadmap.md"},
+        {"section": "6_conclusion.md"},
+        {"section": "7_bonus.md"}
+
+    ]
+}
