@@ -39,6 +39,16 @@ public:
         return get(*this);
     }
 
+#define COMPOUND_ASSIGNMENT_OPERATOR_SAFE(OP)                               \
+    friend synchronized&                                                    \
+    operator OP(synchronized& self, synchronized const& other) {            \
+        value_type temp = get(other);                                       \
+        scoped_lock lock(self.mutex_);                                      \
+        self.value_ OP temp;                                                \
+        return self;                                                        \
+    }                                                                       \
+/**/
+
 #define COMPOUND_ASSIGNMENT_OPERATOR(OP)                                    \
     friend synchronized&                                                    \
     operator OP(synchronized& self, synchronized const& other) {            \
