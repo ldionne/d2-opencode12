@@ -92,6 +92,6 @@ add_subdirectory(ext/d2)
 include_directories(ext/d2/include)
 include_directories(ext/d2/ext/dyno/include)
 
-file(GLOB_RECURSE DEMO_SOURCES demo/*.cpp)
+file(GLOB_RECURSE DEMO_SOURCES src/*.cpp)
 add_executable(demo ${DEMO_SOURCES})
 target_link_libraries(demo d2)
