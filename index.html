@@ -1,0 +1,427 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>Deadlock detection with d2</title>
+
+  <meta name="viewport" content="width=device-width"/>
+
+  <link rel="stylesheet" href="./css/reset.css" type="text/css"/>
+  <link rel="stylesheet" href="./css/showoff.css" type="text/css"/>
+
+  <link type="text/css" href="./css/fg.menu.css" media="screen" rel="stylesheet" />
+  <link type="text/css" href="./css/theme/ui.all.css" media="screen" rel="stylesheet" />
+  <link type="text/css" href="./css/sh_style.css" rel="stylesheet" />
+
+  <script type="text/javascript" src="./js/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="./js/jquery.cycle.all.js"></script>
+	<script type="text/javascript" src="./js/jquery-print.js"></script>
+  <script type="text/javascript" src="./js/jquery.batchImageLoad.js"></script>
+
+  <script type="text/javascript" src="./js/jquery.doubletap-0.1.js"></script>
+
+  <script type="text/javascript" src="./js/fg.menu.js"></script>
+  <script type="text/javascript" src="./js/showoff.js"></script>
+  <script type="text/javascript" src="./js/jTypeWriter.js"> </script>
+  <script type="text/javascript" src="./js/sh_main.min.js"></script>
+  <script type="text/javascript" src="./js/core.js"></script>
+  <script type="text/javascript" src="./js/showoffcore.js"></script>
+  <script type="text/javascript" src="./js/coffee-script.js"></script>
+
+  
+    
+      <script type="text/javascript" src="./js/sh_lang/sh_cpp.min.js"></script>
+    
+  
+
+  
+    <link rel="stylesheet" href="./file/custom.css" type="text/css"/>
+  
+    <link rel="stylesheet" href="./file/sh_styles.css" type="text/css"/>
+  
+
+  
+    <script type="text/javascript" src="./file/custom.js"></script>
+  
+
+  <script type="text/javascript">
+  $(function(){
+      setupPreso(false, './');
+  });
+  </script>
+
+</head>
+
+<body>
+
+<a tabindex="0" href="#search-engines" class="fg-button fg-button-icon-right ui-widget ui-state-default ui-corner-all" id="navmenu"><span class="ui-icon ui-icon-triangle-1-s"></span>slides</a>
+<div id="navigation" class="hidden"></div>
+
+<div id="help">
+  <table>
+    <tr><td class="key">z, ?</td><td>toggle help (this)</td></tr>
+    <tr><td class="key">space, &rarr;</td><td>next slide</td></tr>
+    <tr><td class="key">shift-space, &larr;</td><td>previous slide</td></tr>
+    <tr><td class="key">d</td><td>toggle debug mode</td></tr>
+    <tr><td class="key">## &lt;ret&gt;</td><td>go to slide #</td></tr>
+    <tr><td class="key">c, t</td><td>table of contents (vi)</td></tr>
+    <tr><td class="key">f</td><td>toggle footer</td></tr>
+    <tr><td class="key">r</td><td>reload slides</td></tr>
+    <tr><td class="key">n</td><td>toggle notes</td></tr>
+    <tr><td class="key">p</td><td>run preshow</td></tr>
+    <tr><td class="key">P</td><td>toggle pause</td></tr>
+  </table>
+</div>
+
+<div class="buttonNav">
+  <input type="submit" onClick="prevStep();" value="prev"/>
+  <input type="submit" onClick="nextStep();" value="next"/>
+</div>
+
+<div id="preso">loading presentation...</div>
+<div id="footer">
+  <span id="slideInfo"></span>
+  <span id="debugInfo"></span>
+  <span id="notesInfo"></span>
+</div>
+
+<div id="slides" class="offscreen" style="display:none;">
+<div class="slide" data-transition="none"><div class="content" ref="0_intro/1">
+<h1>Deadlock detection with d2</h1>
+
+<h2>Louis Dionne, OpenCode #12</h2>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="0_intro/2">
+<h1>About me</h1>
+
+<p>I am a math student and programming enthusiast constantly seeking for
+improvement.</p>
+
+<h2>github.com/ldionne</h2>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="0_intro/3">
+<h1>Overview</h1>
+
+<ol>
+<li>The problem: lock order inconsistencies</li>
+<li>Existing solutions</li>
+<li><code>d2</code>: a library-based approach</li>
+<li>Demo</li>
+<li>Roadmap</li>
+</ol>
+</div>
+</div><div class="slide" data-transition="none"><div class="content subsection" ref="1_lock_order_inconsistencies/1">
+<h1>Lock order inconsistencies</h1>
+</div>
+</div><div class="slide" data-transition="none"><div class="content centered-code" ref="1_lock_order_inconsistencies/2">
+<h1>Example #1</h1>
+
+<pre class="sh_cpp"><code>mutex A, B;
+thread t1([&amp;] {
+    scoped_lock a(A);
+    scoped_lock b(B);
+});
+
+thread t2([&amp;] {
+    scoped_lock b(B);
+    scoped_lock a(A);
+});</code></pre>
+</div>
+</div><div class="slide" data-transition="none"><div class="content centered-code" ref="1_lock_order_inconsistencies/3">
+<h1>Example #2</h1>
+
+<pre class="sh_cpp"><code>mutex A, B, C;
+thread t1([&amp;] {
+    scoped_lock a(A);
+    scoped_lock b(B);
+});
+
+thread t2([&amp;] {
+    scoped_lock b(B);
+    scoped_lock c(C);
+});
+
+thread t3([&amp;] {
+    scoped_lock c(C);
+    scoped_lock a(A);
+});</code></pre>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="1_lock_order_inconsistencies/4">
+<h1>Same principle but harder to catch</h1>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="1_lock_order_inconsistencies/5">
+<p class="notes">Very few variations in thread scheduling usually happens for different
+runs of the same code in the same conditions. For this reason, odds are that
+rare deadlocks still make it to production and only happen under "extreme"
+conditions.</p>
+
+<h2>Why are they so vicious?</h2>
+
+<ul>
+<li>Non deterministic</li>
+<li>Often uncaught by unit tests</li>
+<li>Difficult to reproduce</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="1_lock_order_inconsistencies/6">
+<h2>We would like to detect them automatically and before they happen</h2>
+</div>
+</div><div class="slide" data-transition="none"><div class="content subsection" ref="2_existing_solutions/1">
+<h1>Existing solutions</h1>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/2">
+<h2>Never hold more than one lock at once</h2>
+
+<ul>
+<li>Not realistic for non-trivial programs</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/3">
+<h2>Determine a hierarchy among locks and respect it</h2>
+
+<ul>
+<li>Hard to enforce for non-trivial programs</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/4">
+<h2>Disturb thread scheduling to provoke hidden deadlocks</h2>
+
+<ul>
+<li>Requires several runs of the program</li>
+<li>Good idea that could be mixed with other approaches</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/5">
+<h2>Use an algorithm to break deadlocks when they happen</h2>
+
+<ul>
+<li>Overhead required to check for deadlock conditions</li>
+<li>Policy for breaking deadlocks can't be pretty: kill the thread</li>
+<li>Misses the point: deadlocks are a bug, not a runtime mishap</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/6">
+<h2>Intel&#xAE; Inspector XE</h2>
+
+<ul>
+<li>Detects deadlocks involving up to 4 threads only</li>
+<li>Huge overhead</li>
+<li>Proprietary and costly license</li>
+<li>Plenty of false positives</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="2_existing_solutions/7">
+<h2>Valgrind (Helgrind)</h2>
+
+<ul>
+<li>Runs the program on a virtual processor, one thread at a time</li>
+<li>Limited to POSIX pthreads threading primitives</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content subsection" ref="3_d2/1">
+<h1><code>d2</code>: a library-based approach</h1>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="3_d2/2">
+<h1>Goals</h1>
+
+<ul>
+<li>Detect lock order inconsistencies between N threads</li>
+<li>Support custom locks and threads easily</li>
+<li>Low overhead when enabled, none when disabled</li>
+<li>Very few false positives</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="3_d2/3">
+<h1>How to use it?</h1>
+
+<ol>
+<li>Instrument your code</li>
+<li>Run your program successfully (without deadlock)</li>
+<li>Analyze the program trace and find potential deadlocks</li>
+</ol>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="3_d2/4">
+<h1>How does it work?</h1>
+</div>
+</div><div id="slide-filesystem" class="slide" data-transition="none"><div class="content" ref="3_d2/5">
+<h2>When your code runs, events are generated and recorded on disk</h2>
+
+<p><img src="./file//images/example_repository.png" width="770" height="438" alt="Example repository"/>
+</p>
+</div>
+</div><div id="break_mumbo_jumbo" class="slide" data-transition="none">
+  <div class="content commandline" ref="3_d2/6">
+<h2>Once you get used to it, this compact representation is awesome</h2>
+
+<pre><code><code class="command">$ cat my_program/1    # thread 1</code>
+<code class="result">22 serialization::archive 10 0 0 4 0 0 0 0 1 0 0 2 0 0 0 0 0 1 0 0 2 0 0 0 0 0 0 0 1 3 0 0 0 1 4 0 0 0 1 5 0 0 0 1 6 0 0 0 1 7 0 0 0 1 8 0 0 0 1 9 0 0 0 1 10 0 0 0 1 11 0 0 0 1 12 0 0 0 1 13 0 0 0 1 14 0 0 0 1 15 0 0 0 1 16 0 0 0 1 17 0 0 0 1 18 0 0 0 1 19 0 0 0 1 20 0 0 0 1 21 0 0 0 1 22 0 0 0 1 23 0 0 0 1 24 0 0 0 1 25 0 0 0 1 26 0 0 0 1 27 0 0 0 1 28 0 0 0 1 29 0 0 0 1 30 0 0 0 1 31 0 0 0 1 32 0 0 0 1 33 0 0 0 1 34 0 0 0 1 35 0 0 0 1 36 0 0 0 1 37 0 0 0 1 38 0 0 0 1 39 0 0 0 1 40 0 0 0 1 41 0 0 0 1 42 0 0 0 1 43 0 0 0 1 44 0 0 0 1 45 0 0 0 1 46 0 0 0 1 47 0 0 0 1 48 0 0 0 1 49 0 0 0 1 50 0 0 0 1 51 0 0 0 1 52 0 0 0 1 53 0 0 0 1 54 0 0 0 1 55 0 0 0 1 56 0 0 0 1 57 0 0 0 1 58 0 0 0 1 59 0 0 0 1 60 0 0 0 1 61 0 0 0 1 62 0 0 0 1 63 0 0 0 1 64 0 0 0 1 65 0 0 0 1 66 0 0 0 1 67 0 0 0 1 68 0 0 0 1 69 0 0 0 1 70 0 0 0 1 71 0 0 0 1 72 0 0 0 1 73 0 0 0 1 74 0 0 0 1 75 0 0 0 1 76 0 0 0 1 77 0 0 0 1 78 0 0 0 1 79 0 0 0 1 80 0 0 0 1 81 0 0 0 1 82 0 0 0 1 83 0 0 0 1 84 0 0 0 1 85 0 0 0 1 86 0 0 0 1 87 0 0 0 1 88 0 0 0 1 89 0 0 0 1 90 0 0 0 1 91 0 0 0 1 92 0 0 0 1 93 0 0 0 1 94 0 0 0 1 95 0 0 0 1 96 0 0 0 1 97 0 0 0 1 98 0 0 0 1 99 0 0 0 1 100 0 0 0 1 101 0 0 1 0 0 1 101 0 0 1 1 100 0 0 1 1 99 0 0 1 1 98 0 0 1 1 97 0 0 1 1 96 0 0 1 1 95 0 0 1 1 94 0 0 1 1 93 0 0 1 1 92 0 0 1 1 91 0 0 1 1 90 0 0 1 1 89 0 0 1 1 88 0 0 1 1 87 0 0 1 1 86 0 0 1 1 85 0 0 1 1 84 0 0 1 1 83 0 0 1 1 82 0 0 1 1 81 0 0 1 1 80 0 0 1 1 79 0 0 1 1 78 0 0 1 1 77 0 0 1 1 76 0 0 1 1 75 0 0 1 1 74 0 0 1 1 73 0 0 1 1 72 0 0 1 1 71 0 0 1 1 70 0 0 1 1 69 0 0 1 1 68 0 0 1 1 67 0 0 1 1 66 0 0 1 1 65 0 0 1 1 64 0 0 1 1 63 0 0 1 1 62 0 0 1 1 61 0 0 1 1 60 0 0 1 1 59 0 0 1 1 58 0 0 1 1 57 0 0 1 1 56 0 0 1 1 55 0 0 1 1 54 0 0 1 1 53 0 0 1 1 52 0 0 1 1 51 0 0 1 1 50 0 0 1 1 49 0 0 1 1 48 0 0 1 1 47 0 0 1 1 46 0 0 1 1 45 0 0 1 1 44 0 0 1 1 43 0 0 1 1 42 0 0 1 1 41 0 0 1 1 40 0 0 1 1 39 0 0 1 1 38 0 0 1 1 37 0 0 1 1 36 0 0 1 1 35 0 0 1 1 34 0 0 1 1 33 0 0 1 1 32 0 0 1 1 31 0 0 1 1 30 0 0 1 1 29 0 0 1 1 28 0 0 1 1 27 0 0 1 1 26 0 0 1 1 25 0 0 1 1 24 0 0 1 1 23 0 0 1 1 22 0 0 1 1 21 0 0 1 1 20 0 0 1 1 19 0 0 1 1 18 0 0 1 1 17 0 0 1 1 16 0 0 1 1 15 0 0 1 1 14 0 0 1 1 13 0 0 1 1 12 0 0 1 1 11 0 0 1 1 10 0 0 1 1 9 0 0 1 1 8 0 0 1 1 7 0 0 1 1 6 0 0 1 1 5 0 0 1 1 4 0 0 1 1 3 0 0 1 1 2 0 0
+</code></code></pre>
+
+<p><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br/>
+</br>
+</br>
+</br></br></br></br></p></div>
+</div><div class="slide" data-transition="none"><div class="content" ref="3_d2/7">
+<h1>JUST KIDDING</h1>
+
+<h3>it's not for humans</h3>
+</div>
+</div><div class="slide" data-transition="none">
+  <div class="content" ref="3_d2/8">
+<h2>Build a graph of the lock dependencies</h2>
+
+<!-- Sorry guys, I suck at css -->
+
+<p><img src="./file//images/example_graph.jpg" width="4433" height="1883" alt="Example graph" style="width: 80%; height: 80%;"/>
+<br>
+<br>
+<br>
+<br/>
+</br>
+</br>
+</br></p></div>
+</div><div class="slide" data-transition="none"><div class="content commandline" ref="3_d2/9">
+<h2>Find cycles, remove false positives and output a diagnostic</h2>
+
+<pre><code><code class="command">$ d2tool --analyze myprogram</code>
+<code class="result">in thread #X started at [location]:
+  holds object #Y acquired at [location]
+  holds object #Z acquired at [location]
+  ...
+  tries to acquire object #W at [location]
+
+in thread #XX started at [location]:
+  holds object #YY acquired at [location]
+  holds object #ZZ acquired at [location]
+  ...
+  tries to acquire object #WW at [location]
+</code></code></pre>
+</div>
+</div><div class="slide" data-transition="none"><div class="content subsection" ref="4_demo">
+<h1>Demo</h1>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="5_roadmap/1">
+<h1>Limitations and drawbacks</h1>
+
+<ul>
+<li>Requires modifying existing code</li>
+<li>No integration with an IDE</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="5_roadmap/2">
+<h1>Roadmap</h1>
+
+<ul>
+<li>Support a wider set of synchronization primitives</li>
+<li>Provide integration with existing libraries</li>
+<li>Provide bindings in other languages</li>
+<li>Further reduce false positives</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="6_conclusion">
+<h1>Questions/Comments?</h1>
+</div>
+</div><div class="slide" data-transition="none"><div class="content subsection" ref="7_bonus/1">
+<h1>Bonus: summary of the algorithm</h1>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="7_bonus/2">
+<h2>The lock graph is a directed multigraph</h2>
+
+<ul>
+<li>Vertices represent synchronization objects</li>
+<li>An edge from <code>u</code> to <code>v</code> means that a thread acquired <code>v</code> while holding <code>u</code></li>
+<li>A cycle in the graph represents a potential deadlock</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="7_bonus/3">
+<h2>The segmentation graph is a directed acyclic graph</h2>
+
+<ul>
+<li>Vertices represent segments of code separated by <code>start</code>s and <code>join</code>s</li>
+<li>A path from <code>u</code> to <code>v</code> means that <code>u</code> happens before <code>v</code></li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content smbullets" ref="7_bonus/4">
+<h2>We label each edge of the lock graph with</h2>
+
+<ul>
+<li>The thread that performed the acquire</li>
+<li>The set of locks held by the thread ("gatelocks")</li>
+<li>The code segment in which the acquire is performed</li>
+</ul>
+</div>
+</div><div class="slide" data-transition="none"><div class="content" ref="7_bonus/5">
+<h2>To reduce false positives, we ignore a cycle if...</h2>
+</div>
+</div><div class="slide" data-transition="none"><div class="content small centered-code" ref="7_bonus/6">
+<h2>Any two edges are in the same thread</h2>
+
+<pre class="sh_cpp"><code>mutex A, B;
+thread t1([&amp;] {
+  A.lock();
+    B.lock();
+    B.unlock();
+  A.unlock();
+
+  B.lock();
+    A.lock();
+    A.unlock();
+  B.unlock();
+});</code></pre>
+</div>
+</div><div class="slide" data-transition="none"><div class="content small centered-code" ref="7_bonus/7">
+<h2>Any two edges share common "gatelocks"</h2>
+
+<pre class="sh_cpp"><code>mutex A, B, G;
+thread t1([&amp;] {
+  G.lock();
+    A.lock();
+      B.lock();
+      B.unlock();
+    A.unlock();
+  G.unlock();
+});
+
+thread t2([&amp;] {
+  G.lock();
+    B.lock();
+      A.lock();
+      A.unlock();
+    B.unlock();
+  G.unlock();
+});</code></pre>
+</div>
+</div><div class="slide" data-transition="none"><div class="content small centered-code" ref="7_bonus/8">
+<h2>Any edge happens before any other edge in the cycle</h2>
+
+<pre class="sh_cpp"><code>mutex A, B;
+thread t1([&amp;] {
+  A.lock();
+    B.lock();
+    B.unlock();
+  A.unlock();
+});
+t1.join();
+
+thread t2([&amp;] {
+  B.lock();
+    A.lock();
+    A.unlock();
+  B.unlock();
+});</code></pre>
+</div>
+</div></div>
+<div id="pauseScreen">
+  
+</div>
+
+</body>
+</html>
