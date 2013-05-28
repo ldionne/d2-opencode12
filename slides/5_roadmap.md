@@ -1,11 +1,4 @@
-<!SLIDE smbullets>
-# Limitations and drawbacks
-
-* Requires modifying existing code
-* No integration with an IDE
-
-
-<!SLIDE smbullets>
+<!SLIDE smbullets subsection>
 # Roadmap
 * Support a wider set of synchronization primitives
 * Provide integration with existing libraries
