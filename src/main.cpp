@@ -1,4 +1,3 @@
-#define D2_ENABLED
 
 #include "synchronized.hpp"
 #include <chrono>
@@ -15,8 +14,10 @@ synchronized<int> y(5);
 int main() {
     Thread t1([&] {
         // By changing the sleep duration, we can influence the likelihood of
-        // triggering the deadlock.
-        std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+        // triggering the deadlock, but not the correctness of the program.
+        using namespace std::chrono;
+        d2::core::is_enabled() ? std::this_thread::sleep_for(milliseconds(100))
+                               : std::this_thread::sleep_for(nanoseconds(10));
         x += y;
     });
 

@@ -12,6 +12,7 @@ include(CMakeDependentOption)
 option(ENABLE_PEDANTIC "Compile with pedantic enabled." ON)
 option(ENABLE_WERROR   "Fail and stop if a warning is triggered." OFF)
 option(ENABLE_LIBCXX   "Enable -stdlib=libc++ if the compiler supports it." ON)
+option(ENABLE_D2       "Define D2_ENABLED to statically enable d2." ON)
 
 
 #=============================================================================
@@ -62,9 +63,8 @@ endif()
 #=============================================================================
 # Setup feature flags
 #=============================================================================
-if (HAS_STDCXX0X_FLAG)
-    list(APPEND CXX_FEATURE_FLAGS -std=c++0x)
-endif()
+append_if(HAS_STDCXX0X_FLAG CXX_FEATURE_FLAGS -std=c++0x)
+append_if(ENABLE_D2         CXX_FEATURE_FLAGS -DD2_ENABLED=1)
 
 if (ENABLE_LIBCXX AND HAS_STDLIB_LIBCXX_FLAG)
     list(APPEND CXX_FEATURE_FLAGS -stdlib=libc++)
