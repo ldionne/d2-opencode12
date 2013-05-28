@@ -2,13 +2,6 @@
 # ~~~CONFIG:name~~~
 ## ~~~CONFIG:author~~~, ~~~CONFIG:venue~~~
 
-<!SLIDE>
-# About me
-
-I am a math student and programming enthusiast constantly seeking for
-improvement.
-
-## github.com/ldionne
 
 <!SLIDE>
 # Overview
