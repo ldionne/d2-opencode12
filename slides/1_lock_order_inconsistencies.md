@@ -43,16 +43,21 @@
 # Same principle but harder to catch
 
 
-<!SLIDE>
-.notes Very few variations in thread scheduling usually happens for different
-runs of the same code in the same conditions. For this reason, odds are that
-rare deadlocks still make it to production and only happen under "extreme"
-conditions.
+<!SLIDE smbullets>
+# Why are they so vicious?
 
-## Why are they so vicious?
 * Non deterministic
 * Often uncaught by unit tests
 * Difficult to reproduce
+
+
+<!SLIDE smbullets>
+# Possible solutions
+
+* Never hold more than one lock at once
+* Determine a hierarchy among locks and respect it
+* Disturb thread scheduling to provoke hidden deadlocks
+* Use an algorithm to break deadlocks when they happen
 
 
 <!SLIDE>
